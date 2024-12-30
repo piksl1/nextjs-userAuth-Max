@@ -1,8 +1,8 @@
 "use server";
 
+import { createAuthSession } from "@/lib/auth";
 import { hashUserPassword } from "@/lib/hash";
 import { createUser } from "@/lib/user";
-import { redirect } from "next/navigation";
 
 export async function signup(prevState, formData) {
   const email = formData.get("email");
@@ -28,11 +28,21 @@ export async function signup(prevState, formData) {
   const hashedPassword = hashUserPassword(password);
 
   try {
-    createUser(email, hashedPassword);
+    const userId = await createUser(email, hashedPassword);
+
+    if (!userId) {
+      throw new Error("Failed to create user");
+    }
+
+    await createAuthSession(userId);
+
     return {
-      message: "User created successfully",
+      success: true,
+      redirectTo: "/training",
     };
   } catch (error) {
+    console.error("Signup error:", error);
+
     if (error.code === "SQLITE_CONSTRAINT_UNIQUE") {
       return {
         errors: {
