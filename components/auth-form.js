@@ -1,6 +1,6 @@
 "use client";
 
-import { signup } from "@/actions/auth-actions";
+import { auth } from "@/actions/auth-actions";
 import Link from "next/link";
 import { useFormState } from "react-dom";
 import { useRouter } from "next/navigation";
@@ -13,7 +13,7 @@ const initialState = {
 
 export default function AuthForm({mode}) {
   const router = useRouter();
-  const [formState, formAction] = useFormState(signup, initialState);
+  const [formState, formAction] = useFormState(auth.bind(null, mode), initialState);
 
   useEffect(() => {
     if (formState.success && formState.redirectTo) {
